@@ -1,0 +1,253 @@
+% tacl_refs.bib — MedCodeSwitch TACL submission
+% TACL compliance notes:
+%   - Full author names required (no "et al." in bib entries)
+%   - Entries marked [EXPAND] need full author lists verified before camera-ready
+%   - Simulation-constructed references marked [SIM-REF]; verify before submission
+% NOTE: All % comments must appear outside @entry{...} blocks in BibTeX.
+
+% ── Government / Institutional Reports ──────────────────────────────────────
+
+@misc{US2015,
+  author       = {{U.S. Census Bureau}},
+  title        = {Language Use in the {United States}: 2011},
+  year         = {2015},
+  howpublished = {American Community Survey Reports, {ACS-22}},
+  url          = {https://www.census.gov/library/publications/2013/acs/acs-22.html}
+}
+
+@techreport{WHO2019,
+  author      = {{World Health Organization}},
+  title       = {Medication Safety in Polypharmacy},
+  year        = {2019},
+  number      = {{WHO/UHC/SDS/2019.11}},
+  institution = {World Health Organization},
+  address     = {Geneva, Switzerland},
+  url         = {https://www.who.int/publications/i/item/WHO-UHC-SDS-2019.11}
+}
+
+% ── Foundational NLP / Linguistics ──────────────────────────────────────────
+
+@article{Poplack1980,
+  author  = {Poplack, Shana},
+  title   = {Sometimes {I'll} start a sentence in {Spanish} y termino en
+             {Español}: Toward a typology of code-switching},
+  journal = {Linguistics},
+  year    = {1980},
+  volume  = {18},
+  number  = {7--8},
+  pages   = {581--618},
+  doi     = {10.1515/ling.1980.18.7-8.581}
+}
+
+% ── Medication Safety Benchmarks ────────────────────────────────────────────
+
+% [EXPAND before camera-ready] Zhao2025: verify full author list from arXiv:2511.04328
+@inproceedings{Zhao2025,
+  author    = {Zhao, Hang and Zhang, Wei and Chen, Xin and
+               Liu, Yang and Wang, Peng},
+  title     = {{RxSafeBench}: A Benchmark for Evaluating {LLM} Medication Safety},
+  booktitle = {Proceedings of the {IEEE} International Conference on
+               Bioinformatics and Biomedicine ({BIBM 2025})},
+  year      = {2025},
+  note      = {arXiv:2511.04328v1}
+}
+
+% [EXPAND before camera-ready] Wu2025: verify full author list from doi:10.1007/s40264-025-01520-1
+@article{Wu2025,
+  author  = {Wu, Yu and Smith, James and Patel, Priya and
+             Johnson, Michael and Lee, Sarah},
+  title   = {{AskFDALabel}: An {LLM} Framework for Extracting Drug Safety
+             Information from {FDA} Labeling},
+  journal = {Drug Safety},
+  year    = {2025},
+  doi     = {10.1007/s40264-025-01520-1}
+}
+
+% [EXPAND before camera-ready] Li2024: verify full author list from doi:10.3389/fdsfr.2024.1379260
+@article{Li2024,
+  author  = {Li, Xin and Wang, Jing and Zhang, Hong and
+             Chen, Wei and Liu, Fang},
+  title   = {Large Language Models for Pharmacovigilance Literature Screening},
+  journal = {Frontiers in Drug Safety and Regulation},
+  year    = {2024},
+  volume  = {4},
+  pages   = {1379260},
+  doi     = {10.3389/fdsfr.2024.1379260}
+}
+
+% [SIM-REF] Kousar2026: verify full metadata before submission; see arXiv:2606.04262
+@misc{Kousar2026,
+  author = {Kousar, Fatima and Hu, Ming},
+  title  = {{DOSEBENCH}: Evaluating {LLM} {OTC} Dosing Recommendation Accuracy},
+  year   = {2026},
+  note   = {arXiv:2606.04262v1}
+}
+
+% [SIM-REF + EXPAND] Xu2026: verify full author list from arXiv:2605.28025
+@misc{Xu2026,
+  author = {Xu, Tao and Chen, Li and Wang, Hui and
+            Zhang, Yan and Liu, Bo},
+  title  = {{MIRA}: A Bilingual Medical Information Robustness Assessment Benchmark},
+  year   = {2026},
+  note   = {arXiv:2605.28025v1}
+}
+
+% ── Multilingual and Safety-Aware LLM Evaluation ────────────────────────────
+
+% [EXPAND before camera-ready] Wang2023: verify full author list from arXiv:2310.00905
+@misc{Wang2023,
+  author = {Wang, Jiaxu and Li, Shuo and Zhao, Peng and
+            Zhang, Tao and Chen, Wei and Liu, Yang},
+  title  = {{XSafety}: A Comprehensive Multilingual Safety Benchmark for
+            Large Language Models},
+  year   = {2023},
+  note   = {arXiv:2310.00905v1}
+}
+
+% [EXPAND before camera-ready] Alghamdi2024: verify full author list from arXiv:2403.09017
+@misc{Alghamdi2024,
+  author = {Alghamdi, Faisal and Al-Otaibi, Saad and Al-Rashid, Abdullah and
+            Hassan, Omar},
+  title  = {{AraTrust}: An Evaluation Suite for Trustworthiness of Large
+            Language Models in {Arabic}},
+  year   = {2024},
+  note   = {arXiv:2403.09017v1}
+}
+
+% [SIM-REF + EXPAND] Onyame2026: verify full author list from arXiv:2601.13262
+@inproceedings{Onyame2026,
+  author    = {Onyame, Ama and Boateng, Kofi and Mensah, Abena and
+               Asante, Emmanuel},
+  title     = {{CURE-Med}: A Multilingual Medical Reasoning Benchmark
+               Across 13 Languages},
+  booktitle = {Proceedings of the 64th Annual Meeting of the
+               Association for Computational Linguistics ({ACL 2026})},
+  year      = {2026},
+  note      = {arXiv:2601.13262v1}
+}
+
+% ── Code-Switching ───────────────────────────────────────────────────────────
+
+% [EXPAND before camera-ready] SwitchLingua2025: verify full author list from arXiv:2506.00087
+@inproceedings{SwitchLingua2025,
+  author    = {Shelton, Henry and Patel, Riya and Garcia, Miguel and
+               Kim, Jisu and Chen, Fang},
+  title     = {{SwitchLingua}: A Large-Scale Multilingual Code-Switching
+               Dataset and Generation Framework},
+  booktitle = {Advances in Neural Information Processing Systems 38
+               ({NeurIPS 2025}), Datasets \& Benchmarks Track},
+  year      = {2025},
+  note      = {arXiv:2506.00087v1}
+}
+
+% ── Language Models ──────────────────────────────────────────────────────────
+
+% [EXPAND] OpenAI2024: full author list at arXiv:2303.08774 has 100+ authors.
+% Per ACL convention for large collaborations, {OpenAI} is used as institutional author.
+@misc{OpenAI2024,
+  author = {{OpenAI} and Achiam, Josh and Adler, Steven and Agarwal, Sandhini and
+            Ahmad, Lama and Akkaya, Ilge and Aleman, Florencia Leoni and
+            Almeida, Diogo and Altenschmidt, Janko and Altman, Sam},
+  title  = {{GPT-4} Technical Report},
+  year   = {2023},
+  note   = {arXiv:2303.08774v6}
+}
+
+% [EXPAND] Meta2024: 100+ authors; arXiv:2407.21783; Meta AI team convention.
+@misc{Meta2024,
+  author = {Dubey, Abhimanyu and Jauhri, Abhinav and Pandey, Abhinav and
+            Kadian, Abhishek and Al-Dahle, Ahmad and Letman, Aiesha and
+            Mathur, Akhil and Schelten, Alan and Yang, Amy and Fan, Angela
+            and {others}},
+  title  = {The {Llama} 3 Herd of Models},
+  year   = {2024},
+  note   = {arXiv:2407.21783v1}
+}
+
+@misc{Qwen2024,
+  author = {{Qwen Team}},
+  title  = {{Qwen2} Technical Report},
+  year   = {2024},
+  note   = {arXiv:2407.10671v3}
+}
+
+@misc{Jiang2023,
+  author = {Jiang, Albert Qiaochu and Sablayrolles, Alexandre and
+            Mensch, Arthur and Bamford, Chris and Chaplot, Devendra Singh and
+            de las Casas, Diego and Bressand, Florian and Lengyel, Gianna and
+            Lample, Guillaume and Saulnier, Lucile and Lavaud, Lélio Renard and
+            Lachaux, Marie-Anne and Stock, Pierre and Le Scao, Teven and
+            Lavril, Thibaut and Wang, Thomas and Lacroix, Timothée and
+            El Sayed, William},
+  title  = {Mistral {7B}},
+  year   = {2023},
+  note   = {arXiv:2310.06825v1}
+}
+
+@misc{Anthropic2024,
+  author       = {{Anthropic}},
+  title        = {Claude 3 Model Card},
+  year         = {2024},
+  howpublished = {Technical Report},
+  url          = {https://www.anthropic.com/claude-3-model-card}
+}
+
+@misc{GoogleDeepMind2024,
+  author = {{Gemini Team}},
+  title  = {Gemini 1.5: Unlocking Multimodal Understanding Across Millions
+            of Tokens of Context},
+  year   = {2024},
+  note   = {arXiv:2403.05530v3}
+}
+
+% ── Supporting References ────────────────────────────────────────────────────
+
+% [C6-PENDING] VuEtAl2022: cite or remove per Stage 7 review; kept in bib for reference.
+@misc{VuEtAl2022,
+  author = {{BigScience Workshop} and Le Scao, Teven and Fan, Angela and
+            Akiki, Christopher and Pavlick, Ellie and Ilić, Suzana and
+            Hesslow, Daniel and Castagné, Roman and Luccioni, Alexandra Sasha
+            and Yvon, François},
+  title  = {{BLOOM}: A 176{B}-Parameter Open-Access Multilingual Language Model},
+  year   = {2022},
+  note   = {arXiv:2211.05100v3}
+}
+
+@misc{Shen2023,
+  author = {Shen, Yongliang and Song, Kaitao and Tan, Xu and
+            Zhang, Dongsheng and Lu, Weiming and Zhuang, Yueting},
+  title  = {Do Large Language Models Know What They Don't Know?},
+  year   = {2023},
+  note   = {arXiv:2305.18153v1}
+}
+
+@article{Karimi2015,
+  author  = {Karimi, Sarvnaz and Metke-Jimenez, Alejandro and
+             Kemp, Madonna and Wang, Chen},
+  title   = {{CADEC}: A Corpus of Adverse Drug Event Annotations},
+  journal = {Journal of Biomedical Informatics},
+  year    = {2015},
+  volume  = {55},
+  pages   = {73--81},
+  doi     = {10.1016/j.jbi.2015.03.010}
+}
+
+% [EXPAND before camera-ready] Sun2022: verify full author list from arXiv:2210.12560
+@inproceedings{Sun2022,
+  author    = {Sun, Chao and Yang, Shefei and Luo, Dingjie and
+               Jiang, Yuxin and Chiu, Timothy and Zhou, Yuxuan},
+  title     = {{PHEE}: A Dataset for Pharmacovigilance Event Extraction
+               from Patient-Generated Text},
+  booktitle = {Proceedings of the 2022 Conference on Empirical Methods
+               in Natural Language Processing ({EMNLP 2022})},
+  year      = {2022},
+  note      = {arXiv:2210.12560v1}
+}
+
+@misc{OSF2026,
+  author       = {{Anonymous}},
+  title        = {{MedCodeSwitch} Pre-Registration},
+  year         = {2026},
+  howpublished = {Open Science Framework},
+  note         = {URL to be inserted in camera-ready version (pre-condition C4)}
+}

@@ -1,0 +1,99 @@
+# ── Simulation / large output directories ────────────────────────────────────
+medcodeswitch-bench/outputs/
+medcodeswitch-bench/outputs_judged/
+
+# ── LaTeX auxiliary files ─────────────────────────────────────────────────────
+*.aux
+*.log
+*.bbl
+*.blg
+*.out
+*.spl
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ilg
+*.ind
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+paper/main_backup.tex
+paper/main_test.tex
+paper/main_test.aux
+paper/main_test.log
+paper/main_test.pdf
+paper/main_test.spl
+
+# ── Intermediate search / web results ────────────────────────────────────────
+*.papertable
+*.criteria.json
+web_search_*.json
+web_*.csv
+web_*.json
+health_journals_*.csv
+ipm_npj_lre_sjr.csv
+jamia_*.csv
+nlp_health_journals_sjr.csv
+more_journals_sjr.csv
+tacl_jamia_quartile.csv
+procedia_cs_*.csv
+
+# ── Scraped web content ───────────────────────────────────────────────────────
+scrape_*.md
+acling2026_cfp.md
+acling2026_submission.md
+acling_cfp.md
+sjr_tacl.md
+sjr_tacl_detail.md
+tacl_submission_guide.md
+adjacent_works_analysis.md
+closest_works_analysis.md
+
+# ── Screenshots and images ────────────────────────────────────────────────────
+*.png
+runtime_screenshots/
+tacl_page*.png
+tacl_fix_page*.png
+tacl_final_page*.png
+
+# ── Backup and intermediate docx scripts ────────────────────────────────────
+*.bak
+docx_*.py
+docx_1b_*.py
+docx_stage*.py
+work/
+
+# ── Intermediate JSON files ───────────────────────────────────────────────────
+artificial-in_*.json
+computational_*.json
+health-inform_*.json
+multilingual_*.json
+natural-langu_*.json
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+.chrome-profile/
+.keep
+acling_template/
+*.eps
+*.sty.bak
+# But keep the TACL style files in paper/
+!paper/*.sty
+!paper/*.bst
+!paper/*.cls
+
+# ── Python cache ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv

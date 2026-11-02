@@ -1,0 +1,93 @@
+{
+  "en_base": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.0,
+    "mean_cs_signal_detected": 0.0
+  },
+  "es_en_30_intra": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.2979,
+    "mean_cs_signal_detected": 0.1185
+  },
+  "es_en_30_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.1611,
+    "mean_cs_signal_detected": 0.0687
+  },
+  "es_en_50_intra": {
+    "n_items": 400,
+    "consistent_n": 398,
+    "consistent_pct": 99.5,
+    "mean_cs_ratio_reported": 0.4933,
+    "mean_cs_signal_detected": 0.1917
+  },
+  "es_en_50_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.2582,
+    "mean_cs_signal_detected": 0.1051
+  },
+  "es_en_70_intra": {
+    "n_items": 400,
+    "consistent_n": 339,
+    "consistent_pct": 84.8,
+    "mean_cs_ratio_reported": 0.5203,
+    "mean_cs_signal_detected": 0.2013
+  },
+  "es_en_70_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.3586,
+    "mean_cs_signal_detected": 0.1427
+  },
+  "ar_en_30_intra": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.2979,
+    "mean_cs_signal_detected": 0.2225
+  },
+  "ar_en_30_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.1283,
+    "mean_cs_signal_detected": 0.0933
+  },
+  "ar_en_50_intra": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.4379,
+    "mean_cs_signal_detected": 0.3371
+  },
+  "ar_en_50_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.215,
+    "mean_cs_signal_detected": 0.1586
+  },
+  "ar_en_70_intra": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.4386,
+    "mean_cs_signal_detected": 0.3376
+  },
+  "ar_en_70_inter": {
+    "n_items": 400,
+    "consistent_n": 400,
+    "consistent_pct": 100.0,
+    "mean_cs_ratio_reported": 0.2977,
+    "mean_cs_signal_detected": 0.2232
+  }
+}

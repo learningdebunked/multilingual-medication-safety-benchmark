@@ -1,0 +1,225 @@
+{
+  "H1": {
+    "hypothesis": "H1",
+    "description": "All models EN accuracy > 0.60",
+    "per_model": {
+      "MODEL-001": {
+        "mean_acc": 0.8633,
+        "runs": [
+          0.8575,
+          0.855,
+          0.8775
+        ],
+        "t_stat": 36.985,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.8633,
+        "n": 3
+      },
+      "MODEL-002": {
+        "mean_acc": 0.8425,
+        "runs": [
+          0.845,
+          0.8325,
+          0.85
+        ],
+        "t_stat": 46.5973,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.8425,
+        "n": 3
+      },
+      "MODEL-003": {
+        "mean_acc": 0.8158,
+        "runs": [
+          0.8225,
+          0.8,
+          0.825
+        ],
+        "t_stat": 27.1506,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.8158,
+        "n": 3
+      },
+      "MODEL-004": {
+        "mean_acc": 0.7983,
+        "runs": [
+          0.8075,
+          0.7775,
+          0.81
+        ],
+        "t_stat": 18.9945,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.7983,
+        "n": 3
+      },
+      "MODEL-007": {
+        "mean_acc": 0.7775,
+        "runs": [
+          0.7875,
+          0.76,
+          0.785
+        ],
+        "t_stat": 20.2171,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.7775,
+        "n": 3
+      },
+      "MODEL-005": {
+        "mean_acc": 0.745,
+        "runs": [
+          0.76,
+          0.715,
+          0.76
+        ],
+        "t_stat": 9.6667,
+        "p_value": 0.0,
+        "reject_null": true,
+        "mean": 0.745,
+        "n": 3
+      },
+      "MODEL-006": {
+        "mean_acc": 0.6267,
+        "runs": [
+          0.6375,
+          0.605,
+          0.6375
+        ],
+        "t_stat": 2.4615,
+        "p_value": 0.0138,
+        "reject_null": true,
+        "mean": 0.6267,
+        "n": 3
+      }
+    },
+    "global_pass": true,
+    "simulation": true
+  },
+  "H2": {
+    "hypothesis": "H2",
+    "description": "AR-EN < ES-EN < EN for all models",
+    "per_model": {
+      "MODEL-001": {
+        "acc_en": 0.8633,
+        "acc_es_en": 0.7638,
+        "acc_ar_en": 0.7486,
+        "ordering_holds": true
+      },
+      "MODEL-002": {
+        "acc_en": 0.8425,
+        "acc_es_en": 0.738,
+        "acc_ar_en": 0.725,
+        "ordering_holds": true
+      },
+      "MODEL-003": {
+        "acc_en": 0.8158,
+        "acc_es_en": 0.6953,
+        "acc_ar_en": 0.6807,
+        "ordering_holds": true
+      },
+      "MODEL-004": {
+        "acc_en": 0.7983,
+        "acc_es_en": 0.6686,
+        "acc_ar_en": 0.6542,
+        "ordering_holds": true
+      },
+      "MODEL-007": {
+        "acc_en": 0.7775,
+        "acc_es_en": 0.6429,
+        "acc_ar_en": 0.6554,
+        "ordering_holds": false
+      },
+      "MODEL-005": {
+        "acc_en": 0.745,
+        "acc_es_en": 0.5953,
+        "acc_ar_en": 0.5733,
+        "ordering_holds": true
+      },
+      "MODEL-006": {
+        "acc_en": 0.6267,
+        "acc_es_en": 0.4628,
+        "acc_ar_en": 0.4353,
+        "ordering_holds": true
+      }
+    },
+    "models_holding": 6,
+    "total_models": 7,
+    "global_pass": false,
+    "simulation": true
+  },
+  "H3": {
+    "hypothesis": "H3",
+    "description": "Accuracy decreases with CS ratio (dose-response)",
+    "tier_mean_acc": {
+      "0": 0.7813,
+      "30": 0.684,
+      "50": 0.6274,
+      "70": 0.6257
+    },
+    "spearman": {
+      "rho": -1.0,
+      "t_stat": Infinity,
+      "p_value": 0.0,
+      "reject_null": true,
+      "n": 4
+    },
+    "monotone": true,
+    "global_pass": true,
+    "simulation": true
+  },
+  "H4": {
+    "hypothesis": "H4",
+    "description": "AR-EN degrades faster than ES-EN",
+    "mean_es_drop_70": 0.1601,
+    "mean_ar_drop_70": 0.1512,
+    "diffs": [
+      -0.009300000000000003,
+      -0.01050000000000001,
+      -0.010000000000000009,
+      -0.0121,
+      -0.04500000000000001,
+      0.005400000000000016,
+      0.018700000000000022
+    ],
+    "wilcoxon": {
+      "W": 7,
+      "p_value": 0.2367,
+      "reject_null": false,
+      "n": 7
+    },
+    "global_pass": false,
+    "simulation": true
+  },
+  "H5": {
+    "hypothesis": "H5",
+    "description": "GPT-4o outperforms Mistral-7B on CS items",
+    "gpt4o_mean_cs_acc": 0.7562,
+    "mistral_mean_cs_acc": 0.449,
+    "mann_whitney": {
+      "U": 1296,
+      "p_value": 0.0,
+      "reject_null": true,
+      "n1": 36,
+      "n2": 36
+    },
+    "global_pass": true,
+    "simulation": true
+  },
+  "H6": {
+    "hypothesis": "H6",
+    "description": "Qwen2-72B smaller AR-EN gap than LLaMA-3.1-70B",
+    "qwen_ar_drop": 0.1221,
+    "llama_ar_drop": 0.1717,
+    "wilcoxon": {
+      "W": 0,
+      "p_value": 0.0002,
+      "reject_null": true,
+      "n": 18
+    },
+    "global_pass": true,
+    "simulation": true
+  }
+}

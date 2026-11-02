@@ -1,0 +1,16 @@
+{
+  "n_items": 8,
+  "model_used": "MODEL-001",
+  "runs_compared": [
+    43,
+    44
+  ],
+  "annotation_basis": "run_as_annotator_simulation",
+  "percent_agreement": 1.0,
+  "cohen_kappa": 1.0,
+  "krippendorff_alpha": 1.0,
+  "kappa_threshold": 0.75,
+  "kappa_pass": true,
+  "simulation": true,
+  "note": "IAA simulated: two independent runs of the same model treated as annotators. Real human annotation would be required for camera-ready paper."
+}

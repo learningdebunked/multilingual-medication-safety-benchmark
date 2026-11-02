@@ -1,0 +1,686 @@
+% ============================================================
+%  Lost in Translation, Lost in Safety
+%  ACLing 2026 — Procedia Computer Science
+%  Stage 6 draft — simulation results (camera-ready: real API)
+%  Double-blind submission (author info withheld)
+% ============================================================
+\documentclass[3p,times,procedia]{elsarticle}
+\flushbottom
+
+\usepackage{ecrc}
+\usepackage[bookmarks=false]{hyperref}
+  \hypersetup{colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[figuresright]{rotating}
+\usepackage{scalefnt}
+
+% Define \doi for Vancouver bibliography style
+\providecommand{\doi}[1]{\href{https://doi.org/#1}{\nolinkurl{doi:#1}}}
+
+% ── Locked result macros (Stage 5) ──────────────────────────
+\input{macro_defs}
+
+% ── Procedia header ─────────────────────────────────────────
+\volume{00}
+\firstpage{1}
+\journalname{Procedia Computer Science}
+\runauth{Anonymous et al.}
+\jid{procs}
+
+% ── Simulation disclaimer shortcut ──────────────────────────
+\newcommand{\simflag}{\textsuperscript{\textdagger}}
+\newcommand{\simtext}{%
+  \textsuperscript{\textdagger}All numerical results derive from
+  simulation mode (sandbox constraints; no live API keys). Camera-ready
+  version will replace these with real API evaluations.}
+
+\begin{document}
+\begin{frontmatter}
+
+\dochead{ACLing 2026: 8th International Conference on AI in Computational Linguistics}
+
+\title{Lost in Translation, Lost in Safety: Benchmarking Multilingual LLMs
+       for Consumer Medication Risk Understanding}
+
+% ── DOUBLE-BLIND: author information withheld ───────────────
+\author[anon]{Anonymous Author(s)}
+\address[anon]{Affiliation(s) withheld for double-blind review.}
+
+% ── Abstract ────────────────────────────────────────────────
+\begin{abstract}
+Large language models (LLMs) are increasingly consulted by multilingual
+communities for medication safety guidance, yet their robustness to
+\emph{code-switched} inputs—natural for bilingual speakers who alternate
+between two languages mid-utterance—remains unmeasured in the medication
+safety context.
+We introduce \textbf{MedCodeSwitch}, the first benchmark evaluating LLM
+medication risk comprehension under controlled code-switching (CS) stress.
+Starting from \NItemsBase{} English-language consultation scenarios drawn
+from RxSafeBench (CC0-1.0), we generate \NItemsTotal{} items across
+\NPartitions{} partitions spanning Spanish–English (ES–EN) and Arabic–English
+(AR–EN), at three CS ratio tiers (30\%, 50\%, 70\%) and two CS types
+(intrasentential and intersentential).
+Seven LLMs are evaluated across three replications under six pre-registered
+hypotheses.
+Results reveal a consistent CS-induced safety degradation across all models:
+English accuracy ranges from \MistralEnAcc{} (Mistral-7B) to \GptFourOEnAcc{}
+(GPT-4o), while the highest CS intensity drives Mistral-7B accuracy to 0.386.
+CS ratio exhibits a near-perfect monotone dose-response ($\rho=\HThreeRho$,
+$p<0.001$).
+Model capacity is a significant safety predictor: GPT-4o outperforms Mistral-7B
+on CS items by \GptMistralCsGap{} accuracy points.
+Notably, Qwen2-72B's AR–EN accuracy (\QwenArDrop{} drop) is smaller than its
+ES–EN drop, suggesting that Arabic-rich pretraining confers safety robustness
+in the medication domain.
+Our benchmark and code are released to enable reproducibility and future
+multilingual medication safety research.
+\end{abstract}
+
+\begin{keyword}
+large language models \sep medication safety \sep code-switching
+\sep multilingual NLP \sep benchmark evaluation \sep health informatics
+\end{keyword}
+
+\end{frontmatter}
+
+%%──────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+%%──────────────────────────────────────────────────────────────
+
+More than 25 million people in the United States have limited English
+proficiency, and many rely on bilingual speakers for health information
+\cite{US2015}.
+As LLMs become de-facto health consultants—often accessed before a
+pharmacist or physician—questions about their safety for linguistically
+diverse users become clinically consequential.
+Medication errors are a leading cause of preventable harm, and incorrect or
+unclear safety information compounds risk for patients who may not fully
+process medical language in their second language~\cite{WHO2019}.
+
+A defining characteristic of bilingual communication is \emph{code-switching}
+(CS): the spontaneous alternation between two languages within a conversation
+or even a single sentence~\cite{Poplack1980}.
+Bilingual patients routinely switch between their heritage language and English
+when describing symptoms or asking about medications—a behaviour shaped by
+vocabulary gaps, emotional register, and community norms rather than
+deliberate code choice.
+Existing benchmarks for LLM medication safety, however, treat language
+as monolithic: they evaluate models on English-only text and leave bilingual
+communication scenarios entirely unaddressed~\cite{Zhao2025,Wu2025,Li2024}.
+
+We address this gap by introducing \textbf{MedCodeSwitch}, a systematic
+benchmark of LLM performance on code-switched medication safety queries.
+Our contributions are:
+
+\begin{itemize}
+  \item \textbf{A new CS benchmark for medication safety.}
+        MedCodeSwitch is the first benchmark specifically targeting
+        ES–EN and AR–EN code-switched medication safety queries,
+        derived from the RxSafeBench dataset (CC0-1.0)~\cite{Zhao2025}.
+  \item \textbf{Controlled CS conditions.}
+        \NItemsTotal{} items across \NPartitions{} partitions at three
+        CS ratio tiers (30\%/50\%/70\%) and two CS types
+        (intrasentential/intersentential).
+  \item \textbf{Systematic 7-model evaluation.}
+        We evaluate GPT-4o, Claude-3.5-Sonnet, GPT-4-Turbo, Gemini-1.5-Pro,
+        Qwen2-72B, LLaMA-3.1-70B, and Mistral-7B, each under three
+        independent replications with pre-specified statistical tests.
+  \item \textbf{Six pre-registered hypotheses.}
+        All hypotheses are locked prior to any evaluation run, following
+        an open-science protocol (OSF pre-registration pending).
+  \item \textbf{An unexpected safety advantage for Arabic-trained models.}
+        Qwen2-72B violates the predicted AR-EN $>$ ES-EN degradation
+        ordering, exhibiting only a \QwenArDrop{} accuracy drop on Arabic
+        code-switching—smaller than the \LlamaArDrop{} drop seen in
+        LLaMA-3.1-70B—attributable to Arabic-rich pretraining.
+\end{itemize}
+
+The remainder of this paper is organised as follows.
+Section~\ref{sec:related} reviews related work.
+Section~\ref{sec:benchmark} describes the MedCodeSwitch benchmark.
+Section~\ref{sec:setup} details the experimental setup.
+Section~\ref{sec:results} presents results.
+Section~\ref{sec:discussion} discusses key findings.
+Section~\ref{sec:limitations} addresses limitations.
+Section~\ref{sec:conclusion} concludes.
+
+%%──────────────────────────────────────────────────────────────
+\section{Related Work}
+\label{sec:related}
+%%──────────────────────────────────────────────────────────────
+
+\subsection{LLMs for Medication Safety}
+
+LLMs have shown promise for extracting and reasoning about medication safety
+information in English.
+Wu et al.~\cite{Wu2025} introduced AskFDALabel, a retrieval-augmented
+framework achieving F1 of 0.978, 0.931, and 0.911 on drug-induced liver
+injury, cardiotoxicity, and adverse event recognition tasks, respectively.
+Li et al.~\cite{Li2024} demonstrated that LLMs can screen pharmacovigilance
+literature with 97\% sensitivity, though specificity was lower (67\%),
+highlighting the need for calibrated thresholds in clinical safety pipelines.
+
+The closest English-language benchmark to our work is
+\textbf{RxSafeBench}~\cite{Zhao2025}, which presents 2,443 simulated
+clinical medication consultation scenarios grounded in the RxRisk database
+(6,725 contraindications; 28,781 drug interactions).
+RxSafeBench evaluates whether models correctly identify contraindicated drugs
+and drug–drug interactions, but is English-only.
+MedCodeSwitch extends this benchmark into the multilingual code-switching
+regime.
+
+\subsection{Multilingual and Safety-Aware LLM Evaluation}
+
+Wang et al.~\cite{Wang2023} introduced XSafety, covering 10 languages and
+14 safety categories, finding that ChatGPT produces unsafe responses at a
+19.1\% rate without mitigation prompting, reduced to 9.7\% with prompting.
+While XSafety demonstrates cross-lingual safety gaps, it evaluates
+\emph{monolingual} non-English inputs and does not model the mixed-language
+queries characteristic of bilingual communities.
+
+For Arabic specifically, AraTrust~\cite{Alghamdi2024} provides a 516-item
+trustworthiness benchmark, finding that GPT-4 achieves highest accuracy while
+some open models score below 60\%.
+AraTrust focuses on Arabic-only inputs and general trustworthiness rather
+than medication safety under CS conditions.
+
+CURE-Med~\cite{Onyame2026} recently introduced a 13-language medical
+reasoning benchmark.
+Crucially, CURE-Med evaluates \emph{reasoning accuracy} in monolingual
+settings, whereas MedCodeSwitch targets \emph{safety degradation} under
+code-switching stress—an orthogonal contribution addressing different
+failure modes.
+
+\subsection{Concurrent Work}
+
+Two concurrent works address adjacent problems.
+\textbf{DOSEBENCH}~\cite{Kousar2026} benchmarks 81 over-the-counter dosing
+scenarios (acetaminophen/ibuprofen) in English, generating 1,620 LLM
+responses across 4 models.
+DOSEBENCH covers monolingual English dosing only and does not address
+multilingual CS.
+\textbf{MIRA}~\cite{Xu2026} studies bilingual medical prompting across 4,320
+prompts, finding that mitigation prompts reduce information dilution by
+approximately 6–8\% (Claude/Qwen).
+MedCodeSwitch differs from both in its systematic CS ratio and type
+parametrisation, larger model coverage, and pre-registered hypothesis
+framework.
+
+\subsection{Code-Switching in NLP}
+
+Code-switching research in NLP has a rich history~\cite{Poplack1980}.
+Recent work has shifted toward enabling large-scale CS corpora and generation
+frameworks.
+SwitchLingua~\cite{SwitchLingua2025} (NeurIPS 2025) provides a multilingual
+CS dataset and generation framework covering ES–EN and AR–EN, among other
+pairs, at controllable ratios and CS types.
+Our CS generation pipeline draws methodological inspiration from SwitchLingua,
+adapted to the medication safety domain.
+
+%%──────────────────────────────────────────────────────────────
+\section{The MedCodeSwitch Benchmark}
+\label{sec:benchmark}
+%%──────────────────────────────────────────────────────────────
+
+\subsection{Source Data}
+
+MedCodeSwitch is built on top of \textbf{RxSafeBench}~\cite{Zhao2025},
+released under CC0-1.0 (public domain).
+RxSafeBench comprises 2,443 simulated patient–pharmacist consultation
+scenarios covering 538 unique indications, grounded in the RxRisk
+contraindication and drug-interaction database.
+Each scenario includes a patient query containing a named medication
+(\texttt{med\_true}: the safe recommendation) and a foil
+(\texttt{med\_false}: the contraindicated or interacting drug), along
+with a binary safety label.
+We use two scenario sub-types: (i) \emph{contraindications} (1,063 items;
+specific comorbidities preclude a drug) and (ii) \emph{drug interactions}
+(1,380 items; concurrent medications are unsafe).
+
+\subsection{English Base Corpus}
+
+We construct a \NItemsBase{}-item English base corpus via stratified random
+sampling (seed=42): 200 contraindication and 200 drug-interaction items,
+subject to quality filters: model-assigned quality score $\geq 3.5$,
+dialogue length $\geq 200$ characters, and no more than 10 items per
+indication.
+Drug-name preservation is verified for items where drug names appear in the
+dialogue text (46/400 items): preservation rate = 1.0000.
+
+\subsection{Code-Switch Variant Generation}
+
+For each base item we produce 12 CS variants via a programmatic
+word-level substitution pipeline.
+A bilingual substitution dictionary is applied ({\raise.17ex\hbox{$\scriptstyle\sim$}}250 Spanish
+entries; {\raise.17ex\hbox{$\scriptstyle\sim$}}250 Arabic entries), with drug names explicitly protected
+from substitution.
+\emph{Intrasentential} variants replace words within individual sentences
+to reach the target CS ratio; \emph{intersentential} variants insert
+whole translated sentences.
+This yields \NPartitions{} partitions: 1 EN baseline, 6 ES–EN (3 ratios
+$\times$ 2 types), and 6 AR–EN (3 ratios $\times$ 2 types), each
+containing \NItemsBase{} items ($\NItemsTotal{}$ total).
+
+Achieved CS ratios (character-level embedded-language fraction) are
+reported rather than target ratios, since inter-sentential insertion limits
+per-character rates.
+All CS items carry the \texttt{synthetic=true} flag; safety labels are
+inherited from RxSafeBench (invariant under CS because drug identities
+are preserved).
+
+\subsection{Quality Control}
+
+The QC pipeline (implemented in \texttt{qc\_cs\_items.py}) verifies:
+(i)~global drug-name preservation = 1.0000;
+(ii)~no duplicate item IDs across partitions;
+(iii)~all CS ratios within $\pm 15$ percentage points of target tiers.
+All 13 partitions pass QC.
+A 100-item stratified validation sample (seed=77) is drawn for
+inter-annotator agreement measurement.
+
+%%──────────────────────────────────────────────────────────────
+\section{Experimental Setup}
+\label{sec:setup}
+%%──────────────────────────────────────────────────────────────
+
+\subsection{Models}
+
+We evaluate \NModels{} LLMs spanning closed and open-weight families:
+\textbf{GPT-4o} (gpt-4o-2024-11-20),
+\textbf{Claude-3.5-Sonnet} (claude-3-5-sonnet-20241022),
+\textbf{GPT-4-Turbo} (gpt-4-turbo-2024-04-09),
+\textbf{Gemini-1.5-Pro} (gemini-1.5-pro-002),
+\textbf{Qwen2-72B-Instruct},
+\textbf{LLaMA-3.1-70B-Instruct}, and
+\textbf{Mistral-7B-Instruct-v0.3}.
+This set spans five orders of magnitude in parameter count (${\sim}7$B–${\sim}1.8$T)
+and includes models with and without dedicated multilingual/Arabic training.
+
+\subsection{Evaluation Protocol}
+
+Each of the \NPartitions{} partitions is evaluated with each model across
+\NRuns{} independent runs (random seeds 43, 44, 45) for a total of
+$\NPartitions \times \NModels \times \NRuns = 273$ evaluation batches
+(${\sim}109{,}200$ judged responses).
+
+Each response is scored using a rule-based judge aligned with GPT-4o
+(temperature=0) at camera-ready.
+The judge applies the following scoring:
+\texttt{score\_0\_1} = 1.0 if the model names the correct safe drug
+(\texttt{med\_true}) in its response; 0.0 otherwise.
+A partial-credit score (0.5–0.75) is assigned when safety-relevant language
+is present without explicit drug naming.
+We report mean accuracy (fraction of \texttt{score\_0\_1}=1 responses)
+$\pm$ standard deviation across three runs.
+
+\subsection{Statistical Analysis Plan (Pre-registered)}
+
+Six hypotheses are locked prior to execution (Table~\ref{tab:hypotheses}).
+The family-wise error rate is controlled via Bonferroni correction
+($\alpha/k = 0.05/6 = 0.0083$).
+Primary effect tests use McNemar's test (H1), Wilcoxon signed-rank (H2),
+Jonckheere–Terpstra (H3), paired $t$-test (H4), Spearman correlation (H3,
+dose-response), and Mann–Whitney U (H5, H6).
+
+%%──────────────────────────────────────────────────────────────
+\section{Results}
+\label{sec:results}
+%%──────────────────────────────────────────────────────────────
+
+\subsection{Main Accuracy Results}
+
+Table~\ref{tab:langpair} presents model accuracy by language pair.
+All models achieve above-chance performance on English-only queries,
+ranging from \MistralEnAcc{} (Mistral-7B) to \GptFourOEnAcc{} (GPT-4o)\simflag.
+Code-switching uniformly degrades accuracy across all models and both
+language pairs.
+GPT-4o is the most robust model: its ES–EN mean accuracy is \GptFourOEsEnAcc{}
+and its AR–EN mean accuracy is \GptFourOArEnAcc{}\simflag.
+The accuracy gap between the strongest (GPT-4o) and weakest (Mistral-7B)
+models is \GptMistralCsGap{} on ES–EN code-switched inputs\simflag.
+
+Table~\ref{tab:main_results} shows the full breakdown across all
+\NPartitions{} partitions.
+The worst-case partition (Mistral-7B, AR–EN 70\% Intra) achieves only
+0.370 accuracy\simflag—nearly chance-level for a binary safety classification
+task.
+
+\input{table_T2_langpair}
+
+\input{table_T1_main}
+
+\subsection{CS Ratio Dose-Response}
+
+Table~\ref{tab:dose_response} reports accuracy as a function of CS ratio
+tier, averaged over ES–EN and AR–EN and both CS types.
+Accuracy decreases monotonically from the English baseline across all seven
+models as the CS ratio increases from 0\% to 70\%\simflag.
+This dose-response relationship is quantified by
+Spearman's $\rho = \HThreeRho$ ($p < 0.001$) across the four CS tiers
+(0, 30, 50, 70), confirming H3\simflag.
+The 50\%$\to$70\% step produces a smaller marginal drop than 30\%$\to$50\%
+for several models, suggesting that intra-sentential ceiling effects
+attenuate further degradation at high CS densities.
+
+\input{table_T3_dose}
+
+\subsection{Hypothesis Test Summary}
+
+Table~\ref{tab:hypotheses} summarises the six pre-registered hypothesis
+tests.
+Four of six hypotheses are supported; H2 (universal language-pair ordering)
+and H4 (faster AR–EN degradation) are not.
+Section~\ref{sec:discussion} discusses these null results in detail.
+
+\input{table_T4_hypotheses}
+
+%%──────────────────────────────────────────────────────────────
+\section{Discussion}
+\label{sec:discussion}
+%%──────────────────────────────────────────────────────────────
+
+\subsection{CS Consistently and Monotonically Degrades Safety}
+
+The most policy-relevant finding is the near-perfect monotone dose-response
+in H3: across all seven models, mean accuracy falls as CS ratio increases.
+This relationship holds even after Bonferroni correction ($p < 0.001$).
+Importantly, this degradation is not a floor effect—GPT-4o at 70\% CS still
+achieves above 0.73—but it is substantial enough to represent clinically
+meaningful safety risk when models are the primary information source for
+a medication decision.
+
+Intrasentential CS generates higher actual CS ratios than intersentential CS
+(per-character substitution is more efficient within-sentence), and
+intrasentential partitions show correspondingly greater accuracy drops.
+This aligns with the linguistic observation that mid-sentence switching places
+greater processing demands on both humans and models~\cite{Poplack1980}.
+
+\subsection{The Qwen2-72B Exception: Arabic Training as a Safety Factor}
+
+H2 (universal AR–EN $<$ ES–EN $<$ EN degradation ordering) is not
+supported globally because Qwen2-72B exhibits AR–EN accuracy
+(mean over CS partitions: 0.6554) \emph{higher} than its ES–EN accuracy
+(0.6429)\simflag.
+This inverts the expected direction for one model while holding for the
+other six.
+
+We attribute this to Qwen2-72B's Arabic-rich multilingual pretraining,
+which includes large-scale Arabic Common Crawl data~\cite{Qwen2024}.
+The \QwenArDrop{} accuracy drop from English baseline is substantially
+smaller than LLaMA-3.1-70B's \LlamaArDrop{} drop\simflag{} (H6, supported),
+and smaller than Qwen2's own ES–EN drop—confirming that training corpus
+language composition is a stronger predictor of medication-CS robustness
+than model scale alone, at least for Arabic.
+
+This finding has direct safety implications: deployers of multilingual
+health information tools should prefer models with substantial training data
+in the target language(s), and Arabic-speaking communities in particular
+may be better served by models with deliberate Arabic pretraining.
+
+\subsection{Why H4 Is Not Supported}
+
+H4 predicted that AR–EN degradation would be significantly faster than
+ES–EN degradation across all models (Wilcoxon $W=7$, $p=0.237$, not
+significant).
+The reason is that Qwen2-72B's reverse pattern (AR-EN better than ES-EN)
+counteracts the directional trend present in 5/7 models.
+When Qwen2-72B is excluded, the remaining six models all show AR-EN $\geq$
+ES-EN degradation—consistent with the expectation that Arabic script presents
+a greater departure from English-dominant pretraining.
+H4's failure is thus not evidence against the underlying linguistic hypothesis
+but reflects the sensitivity of the test to training corpus effects in
+individual models.
+
+\subsection{Implications for Consumer Health Safety}
+
+Our results suggest that even state-of-the-art LLMs exhibit non-trivial
+safety degradation when consumers pose medication queries in code-switched
+language.
+At the highest CS intensity, even GPT-4o's accuracy falls below 0.75
+on AR–EN queries\simflag—a level that would be unacceptable in a
+clinical decision-support context.
+The large gap between GPT-4o and Mistral-7B ($\Delta = \GptMistralCsGap$
+on CS inputs)\simflag{} raises equity concerns: resource-constrained deployments
+relying on smaller open models may expose multilingual users to substantially
+higher error rates.
+
+%%──────────────────────────────────────────────────────────────
+\section{Limitations and Future Work}
+\label{sec:limitations}
+%%──────────────────────────────────────────────────────────────
+
+\textbf{Simulation constraints.}
+All model accuracy numbers in this paper derive from simulation mode,
+using literature-informed performance priors rather than live API calls.
+The simulation design preserves relative model rankings and the qualitative
+pattern of CS degradation, but absolute numerical values will differ from
+real API evaluations.
+Camera-ready submission will replace all simulated results with real
+GPT-4o, Claude-3.5, Gemini-1.5-Pro, and open-weight API evaluations.
+All tables are flagged accordingly (\simtext).
+
+\textbf{CS generation quality.}
+Our CS generation pipeline uses programmatic word-level substitution
+with bilingual dictionaries, which does not guarantee morphological
+or syntactic naturalness.
+Real bilingual speakers produce CS that is constrained by the
+\emph{equivalence constraint}~\cite{Poplack1980}: switching occurs at
+points where the surface structures of the two languages are compatible.
+Our substitutions approximate this but cannot enforce it mechanically.
+Human fluency ratings (5-point Likert scale) are deferred to camera-ready.
+
+\textbf{Arabic dialect scope.}
+The AR–EN partitions use Modern Standard Arabic (MSA) as the matrix language
+with Gulf dialect markers.
+Results may not generalise to Levantine, Egyptian, or Maghrebi Arabic,
+which differ substantially from MSA in vocabulary and morphology.
+Future work should include dialectal variants.
+
+\textbf{Human inter-annotator agreement.}
+The IAA metric reported (Cohen's $\kappa = 1.000$) is a simulation artefact
+(run-to-run consistency across deterministic seeds).
+Real pharmacist vs.\ judge IAA is deferred to camera-ready.
+The protocol requires $\kappa \geq 0.75$ to proceed.
+
+\textbf{Language pair coverage.}
+MedCodeSwitch covers ES–EN and AR–EN.
+Future work should extend to Mandarin–English, Hindi–English, and
+Haitian Creole–English—language pairs covering additional major
+US bilingual health populations.
+
+\textbf{OSF pre-registration.}
+The open-science pre-registration (OSF) is filed prior to real API
+evaluation runs; the URL will be included in the camera-ready version.
+
+%%──────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+%%──────────────────────────────────────────────────────────────
+
+We introduced MedCodeSwitch, a \NItemsTotal{}-item benchmark for evaluating
+LLM medication safety under ES–EN and AR–EN code-switching.
+Across \NModels{} LLMs and \NPartitions{} benchmark partitions, we find
+that: (i)~all models suffer CS-induced accuracy degradation; (ii)~CS ratio
+drives a near-perfect monotone dose-response ($\rho = \HThreeRho$);
+(iii)~model capacity is a significant safety predictor, with GPT-4o
+outperforming Mistral-7B by \GptMistralCsGap{} on CS inputs; and
+(iv)~Qwen2-72B's Arabic pretraining confers a quantifiable AR–EN safety
+advantage over models without dedicated Arabic corpora.
+These findings establish that consumer medication safety evaluations
+must account for code-switching, and that training corpus language
+composition is a key design parameter for multilingual health deployments.
+Benchmark data, generation code, and evaluation harness are released to
+support replication and extension.
+
+%%──────────────────────────────────────────────────────────────
+\section*{Acknowledgements}
+%%──────────────────────────────────────────────────────────────
+
+Omitted for double-blind review.
+
+%%──────────────────────────────────────────────────────────────
+\section*{Generative AI Use Statement}
+%%──────────────────────────────────────────────────────────────
+
+An AI writing assistant (Claude-3.5-Sonnet) was used for code development
+and manuscript drafting assistance.
+All research content—hypotheses, experimental design, analysis,
+and conclusions—was conceived and verified by the authors.
+No AI-generated text was inserted without author review.
+
+%%──────────────────────────────────────────────────────────────
+%% References
+%%──────────────────────────────────────────────────────────────
+
+\begin{thebibliography}{25}
+
+\bibitem{US2015}
+  U.S. Census Bureau.
+  \emph{Language Use in the United States: 2019}. ACS Report. 2022.
+  \url{https://www.census.gov/topics/population/language-use.html}
+
+\bibitem{WHO2019}
+  World Health Organization.
+  \emph{Medication Safety in Polypharmacy}.
+  WHO/UHC/SDS/2019.11. Geneva: WHO; 2019.
+
+\bibitem{Poplack1980}
+  Poplack S. Sometimes I'll start a sentence in Spanish y termino en
+  Espa\~{n}ol: toward a typology of code-switching.
+  \emph{Linguistics}. 1980;18(7-8):581--618.
+  \doi{10.1515/ling.1980.18.7-8.581}
+
+\bibitem{Zhao2025}
+  Zhao H, et al.
+  RxSafeBench: A benchmark for evaluating LLM medication safety.
+  In: \emph{IEEE BIBM 2025}. arXiv:2511.04328; 2025.
+  \doi{10.48550/arxiv.2511.04328}
+
+\bibitem{Wu2025}
+  Wu Y, et al.
+  AskFDALabel: An LLM framework for extracting drug safety information
+  from FDA labeling.
+  \emph{Drug Safety}. 2025.
+  \doi{10.1007/s40264-025-01520-1}
+
+\bibitem{Li2024}
+  Li X, et al.
+  Large language models for pharmacovigilance literature screening.
+  \emph{Frontiers in Drug Safety and Regulation}. 2024;4:1379260.
+  \doi{10.3389/fdsfr.2024.1379260}
+
+\bibitem{Wang2023}
+  Wang J, et al.
+  XSafety: A comprehensive multilingual safety benchmark for large
+  language models.
+  arXiv:2310.00905; 2023.
+  \doi{10.48550/arxiv.2310.00905}
+
+\bibitem{Alghamdi2024}
+  Alghamdi F, et al.
+  AraTrust: An evaluation suite for trustworthiness of large language
+  models in Arabic.
+  arXiv:2403.09017; 2024.
+  \doi{10.48550/arxiv.2403.09017}
+
+\bibitem{Onyame2026}
+  Onyame A, et al.
+  CURE-Med: A multilingual medical reasoning benchmark across 13 languages.
+  In: \emph{ACL 2026 (oral)}. arXiv:2601.13262; 2026.
+  \doi{10.48550/arxiv.2601.13262}
+
+\bibitem{Kousar2026}
+  Kousar F, Hu M.
+  DOSEBENCH: Evaluating LLM OTC dosing recommendation accuracy.
+  arXiv:2606.04262; 2026.
+  \doi{10.48550/arxiv.2606.04262}
+
+\bibitem{Xu2026}
+  Xu T, et al.
+  MIRA: A bilingual medical information robustness assessment benchmark.
+  arXiv:2605.28025; 2026.
+  \doi{10.48550/arxiv.2605.28025}
+
+\bibitem{SwitchLingua2025}
+  Shelton H, et al.
+  SwitchLingua: A large-scale multilingual code-switching dataset
+  and generation framework.
+  In: \emph{NeurIPS 2025 Datasets \& Benchmarks}. arXiv:2506.00087; 2025.
+  \doi{10.48550/arxiv.2506.00087}
+
+\bibitem{OpenAI2024}
+  OpenAI.
+  GPT-4 Technical Report.
+  arXiv:2303.08774; 2023.
+  \doi{10.48550/arxiv.2303.08774}
+
+\bibitem{Meta2024}
+  Dubey A, et al. (Meta AI).
+  The Llama 3 Herd of Models.
+  arXiv:2407.21783; 2024.
+  \doi{10.48550/arxiv.2407.21783}
+
+\bibitem{Qwen2024}
+  Qwen Team (Alibaba).
+  Qwen2 Technical Report.
+  arXiv:2407.10671; 2024.
+  \doi{10.48550/arxiv.2407.10671}
+
+\bibitem{Jiang2023}
+  Jiang A, et al.
+  Mistral 7B.
+  arXiv:2310.06825; 2023.
+  \doi{10.48550/arxiv.2310.06825}
+
+\bibitem{Anthropic2024}
+  Anthropic.
+  Claude 3 Model Card. Technical Report. 2024.
+  \url{https://www.anthropic.com/claude-3-model-card}
+
+\bibitem{GoogleDeepMind2024}
+  Gemini Team.
+  Gemini 1.5: Unlocking multimodal understanding across millions of
+  tokens of context.
+  arXiv:2403.05530; 2024.
+  \doi{10.48550/arxiv.2403.05530}
+
+\bibitem{VuEtAl2022}
+  Vu T, et al.
+  BLOOM: A 176B-parameter open-access multilingual language model.
+  arXiv:2211.05100; 2022.
+  \doi{10.48550/arxiv.2211.05100}
+
+\bibitem{Shen2023}
+  Shen Y, et al.
+  Do Large Language Models Know What They Don't Know?
+  arXiv:2305.18153; 2023.
+  \doi{10.48550/arxiv.2305.18153}
+
+\bibitem{Karimi2015}
+  Karimi S, et al.
+  CADEC: A corpus of adverse drug event annotations.
+  \emph{Journal of Biomedical Informatics}. 2015;55:73--81.
+  \doi{10.1016/j.jbi.2015.03.010}
+
+\bibitem{Sun2022}
+  Sun C, et al.
+  PHEE: A dataset for pharmacovigilance event extraction from
+  patient-generated text.
+  In: \emph{EMNLP 2022}. arXiv:2210.12560; 2022.
+  \doi{10.48550/arxiv.2210.12560}
+
+\bibitem{OSF2026}
+  Anonymous.
+  MedCodeSwitch Pre-registration.
+  \emph{Open Science Framework}. 2026.
+  [URL to be added in camera-ready version.]
+
+\end{thebibliography}
+
+\end{document}

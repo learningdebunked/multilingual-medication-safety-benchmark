@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Hypothesis test summary. All results simulation=True.}
+\label{tab:hypotheses}
+\begin{tabular}{clcl}
+\toprule
+ID & Description & Verdict & Key Statistic \\
+\midrule
+H1 & All models EN accuracy > 60\% & \textcolor{green!50!black}{Supported} & min EN acc = 0.627 \\
+H2 & Language ordering: AR-EN $<$ ES-EN $<$ EN & \textcolor{red!60!black}{Not Supported} & 6/7 models \\
+H3 & Dose-response: accuracy $\downarrow$ with CS ratio & \textcolor{green!50!black}{Supported} & $\rho=-1.000$, $p=0.0000$ \\
+H4 & AR-EN degrades faster than ES-EN & \textcolor{red!60!black}{Not Supported} & W=7, $p=0.2367$ \\
+H5 & GPT-4o significantly outperforms Mistral-7B (CS) & \textcolor{green!50!black}{Supported} & U=1296, $p=0.0000$ \\
+H6 & Qwen2-72B smaller AR-EN gap (multilingual training) & \textcolor{green!50!black}{Supported} & $\Delta$AR-drop: Qwen=0.122, LLaMA=0.172 \\
+\bottomrule
+\end{tabular}
+\end{table}

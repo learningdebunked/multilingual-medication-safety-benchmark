@@ -1,0 +1,189 @@
+"""
+schema.py — Pydantic v2 data models for MedCodeSwitch-Bench.
+
+BenchmarkItem is the canonical record type for every item in the benchmark,
+whether base-EN or code-switched (ES-EN / AR-EN).
+"""
+
+from __future__ import annotations
+
+from enum import Enum
+from typing import Optional
+from pydantic import BaseModel, Field, model_validator
+
+
+# ── Enumerations ─────────────────────────────────────────────────────────────
+
+class Category(str, Enum):
+    CONTRAINDICATION = "contraindication"
+    DRUG_INTERACTION  = "drug_interaction"
+
+
+class LanguagePair(str, Enum):
+    EN    = "en"
+    ES_EN = "es_en"
+    AR_EN = "ar_en"
+
+
+class CSType(str, Enum):
+    NONE  = "none"
+    INTRA = "intra"
+    INTER = "inter"
+
+
+# ── Core benchmark item ───────────────────────────────────────────────────────
+
+class BenchmarkItem(BaseModel):
+    """
+    Single evaluation scenario for the MedCodeSwitch-Bench benchmark.
+
+    Fields
+    ------
+    item_id          : Unique identifier (e.g. "CONTRA-001", "INTER-001-ESCS30I")
+    category         : contraindication | drug_interaction
+    indication       : Medical condition / indication string from RxSafeBench
+    med_true         : The clinically correct medication choice
+    med_false        : The contraindicated / interacting medication (wrong choice)
+    med_distractor   : A third medication unrelated to the indication (foil)
+    safety_detail    : Specific notice (contraindication) or interaction name
+    dialogue         : Doctor-patient dialogue text (query to LLM)
+    language_pair    : en | es_en | ar_en
+    cs_type          : none | intra-sentential | inter-sentential
+    cs_ratio         : Fraction of tokens that are non-English (0.0 for base EN)
+    source           : Originating dataset / generation method
+    synthetic        : True when dialogue was programmatically generated (not original)
+    quality_score    : Original RxSafeBench quality score (float, higher = better)
+    structure_score  : Original RxSafeBench structure score (float)
+    seed             : RNG seed used during sampling / generation
+    """
+
+    item_id        : str            = Field(..., description="Unique item identifier")
+    category       : Category       = Field(..., description="Scenario category")
+    indication     : str            = Field(..., description="Medical indication")
+    med_true       : str            = Field(..., description="Correct medication")
+    med_false      : str            = Field(..., description="Incorrect/contraindicated medication")
+    med_distractor : str            = Field(..., description="Unrelated distractor medication")
+    safety_detail  : str            = Field(..., description="Specific contraindication notice or interaction name")
+    dialogue       : str            = Field(..., description="Doctor-patient dialogue text")
+    language_pair  : LanguagePair   = Field(LanguagePair.EN, description="Language pair")
+    cs_type        : CSType         = Field(CSType.NONE, description="Code-switching type")
+    cs_ratio       : float          = Field(0.0, ge=0.0, le=1.0, description="Token-level CS ratio")
+    source         : str            = Field("rxsafebench", description="Data source")
+    synthetic      : bool           = Field(False, description="True if dialogue was synthetically generated")
+    quality_score  : Optional[float] = Field(None, description="RxSafeBench quality score")
+    structure_score: Optional[float] = Field(None, description="RxSafeBench structure score")
+    seed           : Optional[int]  = Field(None, description="RNG seed used")
+
+    @model_validator(mode="after")
+    def _validate_cs_consistency(self) -> "BenchmarkItem":
+        """CS ratio > 0 must have a non-NONE cs_type and non-EN language_pair."""
+        if self.cs_ratio > 0.0:
+            if self.cs_type == CSType.NONE:
+                raise ValueError(
+                    f"Item {self.item_id}: cs_ratio={self.cs_ratio} but cs_type=none"
+                )
+            if self.language_pair == LanguagePair.EN:
+                raise ValueError(
+                    f"Item {self.item_id}: cs_ratio={self.cs_ratio} but language_pair=en"
+                )
+        if self.cs_ratio == 0.0 and self.language_pair != LanguagePair.EN:
+            raise ValueError(
+                f"Item {self.item_id}: cs_ratio=0.0 but language_pair={self.language_pair}"
+            )
+        return self
+
+    model_config = {"use_enum_values": True}
+
+
+# ── Result record (LLM output) ────────────────────────────────────────────────
+
+class LLMResponse(BaseModel):
+    """
+    Raw response from one LLM for one BenchmarkItem.
+
+    Fields
+    ------
+    item_id       : Matches BenchmarkItem.item_id
+    model_id      : Identifier string (e.g. "MODEL-001")
+    model_name    : Human-readable name (e.g. "gpt-4o-2024-11-20")
+    run_id        : Integer run index (1, 2, or 3) for 3-run average
+    raw_text      : Full raw LLM output text
+    simulation    : True when response was generated by simulation harness
+    seed_used     : Seed passed to simulation RNG
+    """
+
+    item_id    : str   = Field(..., description="Benchmark item ID")
+    model_id   : str   = Field(..., description="Model registry ID")
+    model_name : str   = Field(..., description="Model full name")
+    run_id     : int   = Field(..., ge=1, le=3, description="Run index 1–3")
+    raw_text   : str   = Field(..., description="Raw LLM output")
+    simulation : bool  = Field(True, description="Simulation flag")
+    seed_used  : int   = Field(..., description="RNG seed used for simulation")
+
+
+# ── Judgment record (scored response) ────────────────────────────────────────
+
+class JudgedResponse(BaseModel):
+    """
+    Scored judgment for one LLMResponse.
+
+    Fields
+    ------
+    item_id            : Matches LLMResponse.item_id
+    model_id           : Matches LLMResponse.model_id
+    run_id             : Matches LLMResponse.run_id
+    correct_drug_named : True if med_true appears in raw_text (exact match, case-insensitive)
+    wrong_drug_flagged : True if med_false is identified as problematic
+    safety_mentioned   : True if safety_detail concept appears in raw_text
+    score_0_1          : Binary 0/1 correctness (1 = correct_drug_named)
+    score_partial      : Partial credit 0.0–1.0 (mean of three bool fields)
+    simulation         : Mirrors LLMResponse.simulation
+    """
+
+    item_id             : str   = Field(..., description="Item ID")
+    model_id            : str   = Field(..., description="Model ID")
+    run_id              : int   = Field(..., ge=1, le=3)
+    correct_drug_named  : bool  = Field(..., description="med_true found in response")
+    wrong_drug_flagged  : bool  = Field(..., description="med_false flagged as problematic")
+    safety_mentioned    : bool  = Field(..., description="Safety detail concept mentioned")
+    score_0_1           : int   = Field(..., ge=0, le=1, description="Binary correctness")
+    score_partial       : float = Field(..., ge=0.0, le=1.0, description="Partial credit")
+    simulation          : bool  = Field(True)
+
+
+if __name__ == "__main__":
+    # Smoke-test: create one valid item and one invalid item
+    item = BenchmarkItem(
+        item_id="CONTRA-001",
+        category=Category.CONTRAINDICATION,
+        indication="diabetic-neuropathy",
+        med_true="gabapentin",
+        med_false="lyrica",
+        med_distractor="lamictal",
+        safety_detail="heart problems (especially congestive heart failure)",
+        dialogue="Doctor: What brings you in? Patient: Foot pain and tingling.",
+        quality_score=4.5,
+        structure_score=4.0,
+        seed=42,
+    )
+    print("Valid EN item:", item.item_id, item.category, item.language_pair)
+
+    import pydantic
+    try:
+        bad = BenchmarkItem(
+            item_id="BAD-001",
+            category=Category.CONTRAINDICATION,
+            indication="x",
+            med_true="a",
+            med_false="b",
+            med_distractor="c",
+            safety_detail="s",
+            dialogue="d",
+            cs_ratio=0.3,
+            cs_type=CSType.NONE,  # should fail
+            language_pair=LanguagePair.ES_EN,
+        )
+    except pydantic.ValidationError as e:
+        print("Caught expected validation error:", e.errors()[0]['msg'])
+
+    print("schema.py smoke-test PASSED")
